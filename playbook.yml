@@ -1,0 +1,41 @@
+# -*- mode: yaml-*-
+# vi: set ft=yaml sw=2 ts=2 :
+
+- name: Configure development machine
+  hosts: all
+  sudo: True
+  tasks:
+    - name: set locale
+      lineinfile: dest=/etc/default/locale line="LC_ALL=C"
+
+    - name: install dependencies
+      apt: name={{ item }} update_cache=yes
+      with_items:
+        - git
+        - curl
+
+    #sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 7F0CEB10
+    - name: add the public key for mongoDB
+      apt_key: 
+        keyserver: hkp://keyserver.ubuntu.com:80
+        id: 7F0CEB10
+        state: present
+
+
+    #echo "deb http://repo.mongodb.org/apt/ubuntu trusty/mongodb-org/3.0 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-3.0.list
+    - name: add MongoDb repo
+      apt_repository: 
+        repo: 'deb http://repo.mongodb.org/apt/ubuntu trusty/mongodb-org/3.0 multiverse'
+        state: present
+
+    - name: install MongoDB
+      apt: 
+        name: mongodb-org
+        update_cache: yes
+      notify: start mongo
+
+    - name: start mongo
+      service:
+        name: mongo
+        state: start
+
