@@ -1,0 +1,12 @@
+html {
+  font-family: 'Roboto', sans-serif;
+}
+
+body {
+  font-size: 13px;
+  line-height: 20px;
+}
+
+.wrap {
+  margin-top: 3rem;
+}
