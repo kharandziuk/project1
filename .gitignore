@@ -1,4 +1,17 @@
-# Created by https://www.gitignore.io/api/node,vim
+# Created by https://www.gitignore.io/api/vim,vagrant,node
+
+### Vim ###
+[._]*.s[a-w][a-z]
+[._]s[a-w][a-z]
+*.un~
+Session.vim
+.netrwhist
+*~
+
+
+### Vagrant ###
+.vagrant/
+
 
 ### Node ###
 # Logs
@@ -29,13 +42,4 @@ build/Release
 # Dependency directory
 # https://docs.npmjs.com/misc/faq#should-i-check-my-node-modules-folder-into-git
 node_modules
-
-
-### Vim ###
-[._]*.s[a-w][a-z]
-[._]s[a-w][a-z]
-*.un~
-Session.vim
-.netrwhist
-*~
 
