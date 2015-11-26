@@ -3,6 +3,7 @@
     {
       "name"        : "server",
       "script"      : "_app.js",
+      "ignore_watch": ["media"],
       "watch_options": {
         "usePolling": true
        }
