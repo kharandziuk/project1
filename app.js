@@ -33,9 +33,18 @@ app.use(function(req, res, next){
 })
 
 app.get('/pretendents', (req, res)=> {
-  req.db('pretendents')
-    .then((pretendents) => pretendents.find({}).toArrayAsync())
-    .then((docs) => res.json(docs))
+  Promise.all([req.db('pretendents'), req.db('attachments')])
+    .then(([pretendents, attachments]) => Promise.all([
+      pretendents.find({}).toArrayAsync(),
+      attachments.find({}).toArrayAsync()
+    ]))
+    .then(([pretendents, attachments]) => res.json({
+      results: pretendents.map((p)=> {
+        p.attachments = attachments.filter((el) => el.pretendentId === p._id)
+        return p
+      })
+    }))
+    .catch((err)=> console.log(err))
 })
 
 app.post('/attachments',
@@ -84,7 +93,7 @@ app.post('/attachments',
         })
         .then(({ops})=> {
             console.log('added an attachment')
-            res.json(ops[0])
+            res.json({result: ops[0]})
         })
         .catch((err)=> {
           console.log('some error')

@@ -30,8 +30,8 @@
     constructor () {
       super()
       this.state = {}
-      $.get('http://localhost:8000/pretendents/').then((data)=> {
-        let users = data.reduce(
+      $.get('http://localhost:8000/pretendents/').then(({results})=> {
+        let users = results.reduce(
           (acc, next) => {
             acc[next[ID]] = next
             return acc
@@ -62,11 +62,12 @@
 
     addImage(id, file) {
       var fd = new FormData()
-      fd.append('person', id)
+      fd.append('pretendentId', id)
       fd.append('file', file)
+      console.log('bbb', id, file)
       var reader = new FileReader()
       $.ajax({
-          url: 'http://localhost:8001/files/',
+          url: getUrl('attachments'),
           data: fd,
           cache: false,
           processData: false,
@@ -75,6 +76,7 @@
       }).done(()=>{
         reader.readAsDataURL(file)
         reader.onload = (e)=>
+          console.log('kapa', e.target)
           this.state.users[id].attachments.push({
             src: e.target.result
           })
@@ -170,6 +172,7 @@
             let last = _.last(acc)
             if (_.isUndefined(last) || last.length >= 4) {
               last = []
+              console.log(last)
               acc.push(last)
             }
             last.push(next)
@@ -177,7 +180,6 @@
           },
           []
       )
-      console.log(photos, groupedPhotos)
       return (
         <div className="box" style={{padding: '0.5rem'}}>
           {
@@ -187,7 +189,7 @@
                   group.map((el, j) => {
                     return (
                       <div className="col-md-3">
-                        <img src={el.src} key={[i,j].join('.')} witdh="100" height="100"/>
+                        <img src={el.filepath} key={[i,j].join('.')} witdh="100" height="100"/>
                       </div>
                     )
                   })

@@ -3,7 +3,8 @@
     {
       "name"        : "server",
       "script"      : "_app.js",
-      "ignore_watch": ["media", "[\\/\\\\]\\./"],
+      "ignore_watch": ["app.js"],
+      "ignore_watch": [".git", "media", "[\\/\\\\]\\./"],
       "watch_options": {
         "usePolling": true
        }
