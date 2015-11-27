@@ -2,7 +2,7 @@
   "apps" : [
     {
       "name"        : "server",
-      "script"      : "wrap.js",
+      "script"      : "wrapServer.js",
       "ignore_watch": [".git", "media", "[\\/\\\\]\\./"],
       "watch_options": {
         "usePolling": true
