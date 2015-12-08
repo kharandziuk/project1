@@ -34,6 +34,9 @@ module.exports = (db, config) => {
     }).catch((err)=> console.log(err))
   })
 
+  app.get('/attachments', (req, res)=> {
+
+  })
   app.post('/attachments',
       (req, res, next)=> {
         let {busboy} = req

@@ -30,7 +30,15 @@
     constructor () {
       super()
       this.state = {}
-      $.get('http://localhost:8000/pretendents/').then(({results})=> {
+      this.updatePretendents.call(this)
+      this.updateAttachments.call(this)
+
+      this.addUser = this.addUser.bind(this)
+      this.changeUser = this.changeUser.bind(this)
+    }
+
+    updatePretendents () {
+      $.get(getUrl('pretendents')).then(({results})=> {
         let users = results.reduce(
           (acc, next) => {
             acc[next[ID]] = next
@@ -39,10 +47,21 @@
           {}
         )
         this.state.users = users;
-        this.addUser = this.addUser.bind(this)
-        this.changeUser = this.changeUser.bind(this)
         this.emit('change')
       })
+    }
+
+    updateAttachments() {
+      $.get(getUrl('attachments')).then(({results})=> {
+        this.getState().users.map((u) => {
+          u.attachments = results.filter((item) => {
+            return item.pretendentId == u.id
+          })
+        })
+        this.emit('change')
+      })
+
+
     }
 
     getState() {
