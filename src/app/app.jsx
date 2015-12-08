@@ -1,9 +1,11 @@
 (function () {
   let React = require('react')
   let ReactDOM = require('react-dom')
+  const stream = require('stream')
 
   const $ = require('jquery')
   const _ = require('underscore')
+  const H = require('highland')
   const UI = require('material-ui')
   const Dropzone = require('react-dropzone')
   const ID = '_id'
@@ -261,25 +263,70 @@
     }
 
     render() {
-      let {storage} = this.props
-      let appState = storage.getState()
+      let {data} = this.props
       return (
           <div className="row">
             <div className="col-md-6 col-md-offset-3">
               <div className="box">
-                <CardList users={appState.users} storage={storage}></CardList>
-                <PlusButton onClick={storage.addUser}></PlusButton>
+                some text
               </div>
             </div>
           </div>
       )
     }
   }
-  var storage = new DataModel()
-  storage.addListener('change', function() {
-    ReactDOM.render(
-      <App storage={storage}/>, document.getElementById('app')
-    )
-  })
 
+
+  class UserModel extends stream.Readable {
+    constructor () {
+      super()
+    }
+    _read () {
+      console.log('read', this.state)
+      this.push(this.state)
+    }
+  }
+
+  class View extends stream.Writable {
+    constructor () {
+      super({objectMode: true})
+    }
+    _write(data, enc, next) {
+      ReactDOM.render(
+        <App storage={data}/>, document.getElementById('app')
+      )
+      next();
+    }
+  }
+
+  class ViewModel extends stream.Transform {
+    constructor () {
+      super()
+    }
+    _transform (data, enc, cb) {
+      console.log('vm', data)
+      this.push(null, data)
+      cb()
+    }
+  }
+
+
+  // I'm here
+  var m = H((push, next) => {
+      var state = [
+        ['Max', 'Kharandziuk'],
+        ['Arthur', 'Bachinskiy'],
+        ['Roman', 'Gaponov'],
+        ['Natalia', 'Peter'],
+      ].map(([firstName, lastName], id) => {return {id, firstName, lastName}})
+      push(null, state)
+  })
+  var vm = H.pipeline(function (s) {
+    return s.map((d) => d)
+  });
+  var v = new View()
+  m.pipe(vm).pipe(v)
+  // vm.pipe(v)
+
+  //var storage = new DataModel()
 })();
