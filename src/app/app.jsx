@@ -8,7 +8,8 @@
   const H = require('highland')
   const UI = require('material-ui')
   const Dropzone = require('react-dropzone')
-  const ID = '_id'
+  const rx = require('rx')
+  const ID = 'id'
   let {EventEmitter} = require('events')
 
   var getUrl = (endpoint) => `http://localhost:8000/${endpoint}/`
@@ -124,14 +125,14 @@
 
   class CardHeader extends React.Component {
     onDrop (files) {
-      let {storage, user} = this.props
-      _(files).forEach(function(f) {
-        storage.addImage(user[ID], f)
-      })
+      let {user} = this.props
+      //_(files).forEach(function(f) {
+      //  storage.addImage(user[ID], f)
+      //})
     }
     render() {
       let {user} = this.props
-      let {changeUser} = this.props.storage
+      //let {changeUser} = this.props.storage
 
       return (
         <div className="row">
@@ -171,15 +172,14 @@
   class Card extends React.Component {
     render() {
       let {storage, user} = this.props
-      console.log('user', user)
       return (
         <div className="row" style={{
           padding: "1rem",
           margin: "2rem",
           backgroundColor: "#FFFFFF",
           boxShadow: "0 1px 6px rgba(0, 0, 0, 0.12), 0 1px 4px rgba(0, 0, 0, 0.24)"}}>
-          <CardHeader user={user} storage={storage}/>
-          <PhotoGrid photos={user.attachments}></PhotoGrid>
+          <CardHeader user={user}/>
+          <PhotoGrid photos={user.photos}></PhotoGrid>
         </div>
       )
     }
@@ -210,7 +210,7 @@
                   group.map((el, j) => {
                     return (
                       <div className="col-md-3">
-                        <img src={el.filepath} key={[i,j].join('.')} witdh="100" height="100"/>
+                        <img src={el.src} key={[i,j].join('.')} witdh="100" height="100"/>
                       </div>
                     )
                   })
@@ -245,11 +245,13 @@
     }
     render() {
       let {users} = this.props
+      console.log(users)
       return (
           <div>
           {
             _(users).chain().values().map((user)=> {
-              return <Card key={user[ID]} user={user} storage={storage}/>
+              console.log('u')
+              return <Card key={user[ID]} user={user} />
             }).value()
           }
           </div>
@@ -263,12 +265,12 @@
     }
 
     render() {
-      let {data} = this.props
+      let {state} = this.props
       return (
           <div className="row">
             <div className="col-md-6 col-md-offset-3">
               <div className="box">
-                some text
+                <CardList users={state}/>
               </div>
             </div>
           </div>
@@ -276,57 +278,31 @@
     }
   }
 
-
-  class UserModel extends stream.Readable {
-    constructor () {
-      super()
-    }
-    _read () {
-      console.log('read', this.state)
-      this.push(this.state)
-    }
-  }
-
-  class View extends stream.Writable {
-    constructor () {
-      super({objectMode: true})
-    }
-    _write(data, enc, next) {
-      ReactDOM.render(
-        <App storage={data}/>, document.getElementById('app')
-      )
-      next();
-    }
-  }
-
-  class ViewModel extends stream.Transform {
-    constructor () {
-      super()
-    }
-    _transform (data, enc, cb) {
-      console.log('vm', data)
-      this.push(null, data)
-      cb()
-    }
-  }
-
-
-  // I'm here
-  var m = H((push, next) => {
-      var state = [
+  rx.Observable
+    .interval(500)
+    .map(() => {
+      var users = [
         ['Max', 'Kharandziuk'],
         ['Arthur', 'Bachinskiy'],
         ['Roman', 'Gaponov'],
         ['Natalia', 'Peter'],
       ].map(([firstName, lastName], id) => {return {id, firstName, lastName}})
-      push(null, state)
-  })
-  var vm = H.pipeline(function (s) {
-    return s.map((d) => d)
-  });
-  var v = new View()
-  m.pipe(vm).pipe(v)
-  // vm.pipe(v)
+      users = users.map((u) =>
+          _.extend(
+            u,
+            {
+              photos: _.range(3).map((i)=> {return {src: `http://lorempixel.com/400/200/people/${i}/`}})
+            }
 
-  //var storage = new DataModel()
+          )
+      )
+      return users
+    })
+    .do(
+      (state)=>
+        ReactDOM.render(
+          <App state={state}/>, document.getElementById('app')
+        )
+    ).subscribe()
+
 })();
