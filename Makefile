@@ -5,3 +5,11 @@ provision:
 	--private-key=.vagrant/machines/default/virtualbox/private_key \
 	--start-at-task="$(AT)" \
 	-u vagrant playbook.yml
+
+
+check:
+	ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -vvvv \
+	-i .vagrant/provisioners/ansible/inventory/vagrant_ansible_inventory \
+	--private-key=.vagrant/machines/default/virtualbox/private_key \
+	--check \
+	-u vagrant playbook.yml

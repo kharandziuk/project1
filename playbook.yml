@@ -4,38 +4,70 @@
 - name: Configure development machine
   hosts: all
   sudo: True
+  vars:
+    update_apt_cache: yes
+    app_name: "reactorfilm"
+    app_dir: "/usr/local/{{ app_name }}/"
+    nginx_server_name: "{{ app_name }}"
+    # Nginx settings
+    nginx_http_port: 80
+    nginx_https_port: 443
+    app_log_dir: "{{ app_dir }}/log/"
+    nginx_access_log_file: "{{ app_log_dir }}nginx_access.log"
+    nginx_error_log_file: "{{ app_log_dir }}nginx_error.log"
+    nginx_static_dir: "{{ app_dir }}/static/"
+    nginx_media_dir: "{{ app_dir }}/media/"
   tasks:
     - name: set locale
       lineinfile: dest=/etc/default/locale line="LC_ALL=C"
 
     - name: install dependencies
-      apt: name={{ item }} update_cache=yes
+      apt: name={{ item }} update_cache={{ update_apt_cache }}
       with_items:
         - git
         - curl
 
-    #sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 7F0CEB10
-    - name: add the public key for mongoDB
-      apt_key: 
-        keyserver: hkp://keyserver.ubuntu.com:80
-        id: 7F0CEB10
-        state: present
+    - name: install nginx
+      apt: name=nginx update_cache={{ update_apt_cache }} state=installed
+      tags:
+        - packages
+        - nginx
 
 
-    #echo "deb http://repo.mongodb.org/apt/ubuntu trusty/mongodb-org/3.0 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-3.0.list
-    - name: add MongoDb repo
-      apt_repository: 
-        repo: 'deb http://repo.mongodb.org/apt/ubuntu trusty/mongodb-org/3.0 multiverse'
-        state: present
+    - name: Create the Nginx configuration file
+      template:
+        src: nginx_site_config.j2
+        dest: "/etc/nginx/sites-available/{{ app_name }}"
+        backup: yes
+      notify: reload nginx
+      tags:
+        - nginx
 
-    - name: install MongoDB
-      apt: 
-        name: mongodb-org
-        update_cache: yes
-      notify: start mongo
+    - name: ensure that the default site is disabled
+      file: 
+        path: "/etc/nginx/sites-enabled/default"
+        state: absent
+      notify: reload nginx
+      tags:
+        - nginx
 
-    - name: start mongo
-      service:
-        name: mongod
-        state: started
+    - name: ensure that the application site is enabled
+      file:
+        src:  "/etc/nginx/sites-available/{{ app_name }}"
+        path: "/etc/nginx/sites-enabled/{{ app_name}}"
+        state: link
+      notify: reload nginx
+      tags:
+        - nginx
 
+    - name: Ensure Nginx service is started
+      service: name=nginx state=started enabled=yes
+      tags:
+        - nginx
+
+  handlers:
+    - name: restart nginx
+      service: name=nginx state=restarted enabled=yes
+
+    - name: reload nginx
+      service: name=nginx state=reloaded enabled=yes

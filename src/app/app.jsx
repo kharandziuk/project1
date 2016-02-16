@@ -277,16 +277,27 @@
       )
     }
   }
+  var dal = {
+    photos: _.flatten(
+      _.range(4).map((i)=> 
+        _.range(3).map((j)=> {
+          return {
+            id: i * 10 + j,
+            userId: i,
+            src: `http://lorempixel.com/400/200/people/${j}/`}
+          }
+        )
+      )
+    ),
+    users: [
+      ['Max', 'Kharandziuk'],
+      ['Arthur', 'Bachinskiy'],
+      ['Roman', 'Gaponov'],
+      ['Natalia', 'Peter'],
+    ].map(([firstName, lastName], id) => {return {id, firstName, lastName}})
+  }
 
-  rx.Observable
-    .interval(500)
     .map(() => {
-      var users = [
-        ['Max', 'Kharandziuk'],
-        ['Arthur', 'Bachinskiy'],
-        ['Roman', 'Gaponov'],
-        ['Natalia', 'Peter'],
-      ].map(([firstName, lastName], id) => {return {id, firstName, lastName}})
       users = users.map((u) =>
           _.extend(
             u,
