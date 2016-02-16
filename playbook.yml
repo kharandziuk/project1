@@ -17,8 +17,12 @@
     app_log_dir: "{{ app_dir }}log/"
     nginx_access_log_file: "{{ app_log_dir }}nginx_access.log"
     nginx_error_log_file: "{{ app_log_dir }}nginx_error.log"
-    nginx_static_dir: "{{ app_dir }}/static/"
+    nginx_static_dir: "{{ app_dir }}/build/"
     nginx_media_dir: "{{ app_dir }}/media/"
+
+
+    git_repo: "https://github.com/kharandziuk/project1"
+    git_branch: "master"
 
   tasks:
     - name: set locale
@@ -29,6 +33,38 @@
       with_items:
         - git
         - curl
+
+    - name: Create the application user
+      user: name={{ app_user }} state=present
+
+    - name: Create the application group
+      group: name={{ app_group }} system=yes state=present
+
+    - name: Add the application user to the application group
+      user: name={{ app_user }} group={{ app_group }} state=present
+
+    - name: Ensure that the application file permissions are set properly
+      file: 
+        path: "{{ app_dir }}"
+        recurse: yes
+        owner: "{{ app_user }}"
+        group: "{{ app_group }}"
+        state: directory
+      #notify: restart application
+
+    - name: setup the git repo
+      git:
+        repo: "{{ git_repo }}"
+        version: "{{ git_branch }}"
+        dest: "{{ app_dir }}"
+        accept_hostkey: yes
+      #when: setup_git_repo is defined and setup_git_repo
+      tags: git
+
+    - name: ensure log directory is created
+      file:
+        path: "{{ app_log_dir }}"
+        state: directory
 
     - name: install nginx
       apt: name=nginx update_cache={{ update_apt_cache }} state=installed
@@ -68,14 +104,6 @@
       tags:
         - nginx
 
-    - name: Create the application user
-      user: name={{ app_user }} state=present
-
-    - name: Create the application group
-      group: name={{ app_group }} system=yes state=present
-
-    - name: Add the application user to the application group
-      user: name={{ app_user }} group={{ app_group }} state=present
 
   handlers:
     - name: restart nginx
