@@ -8,7 +8,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   config.vm.box = "ubuntu/trusty64"
   #config.vm.synced_folder "./project/", "/opt/project/"
   config.vm.network "forwarded_port", guest: 27017, host: 8017
-  #config.vm.network "forwarded_port", guest: 80, host: 8002
+  config.vm.network "forwarded_port", guest: 80, host: 8002
   #config.vm.network :public_network, bridge: 'eth0'
   config.vm.provider :virtualbox do |vb|
     vb.customize [
