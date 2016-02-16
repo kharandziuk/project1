@@ -19,6 +19,10 @@ module.exports = (db, config) => {
   app.use(bodyParser.json())
   app.use(busboy())
 
+  app.get('/test', (req, res) => {
+    res.json({text: 'it works'})
+  })
+
   app.get('/pretendents', (req, res)=> {
     P.join(
       db.collection('pretendents').find({}).toArrayAsync(),
