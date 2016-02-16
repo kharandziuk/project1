@@ -1,15 +1,6 @@
-const PORT = 8000
-const P = require('bluebird')
-const path = require('path')
-
-var {MongoClient, ObjectID} = P.promisifyAll(require('mongodb'))
-var url = 'mongodb://localhost:8017/local';
-let mediaPath = path.resolve(__dirname, 'media')
-
-MongoClient.connectAsync(url).then((db) => {
-  let app = require('./app')(db, {})
-
-  app.listen(PORT, function() {
-    console.log(`listen on port ${PORT}`)
-  })
-})
+var http = require('http');
+http.createServer(function (req, res) {
+    res.writeHead(200, {'Content-Type': 'text/plain'});
+      res.end('Hello World\n');
+}).listen(8080);
+console.log('Server running at http://APP_PRIVATE_IP_ADDRESS:8080/');
