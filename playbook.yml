@@ -10,6 +10,7 @@
     app_user: "{{ app_name }}"
     app_group: "webapps"
     app_dir: "/usr/local/{{ app_name }}/"
+    app_entry_point: "{{app_dir}}wrapServer.js"
     app_host: "localhost"
     app_port: 2000
     nginx_server_name: "{{ app_name }}"
@@ -92,7 +93,8 @@
         src: pm2_config.j2
         dest: "{{ pm2_config_path }}"
         backup: yes
-        mode: 0751
+        owner: "{{ app_user }}"
+        group: "{{ app_group }}"
       # notify: reload nginx
       tags:
         - nginx
@@ -108,8 +110,13 @@
     - name: install npm dependencies
       npm:
         path: "{{ app_dir }}"
-      tags:
-        - git
+
+    - name: build assets
+      command: npm run gulp build
+      args:
+        chdir: "{{ app_dir }}"
+
+
 
     - name: ensure log directory is created
       file:

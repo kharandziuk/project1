@@ -6,7 +6,7 @@ VAGRANTFILE_API_VERSION = "2"
 
 Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   config.vm.box = "ubuntu/trusty64"
-  config.vm.synced_folder "./logs/", "/usr/local/reactivefilm/logs/"
+  config.vm.synced_folder "./logs/", "/usr/local/reactorfilm/logs/"
   config.vm.network "forwarded_port", guest: 27017, host: 8017
   config.vm.network "forwarded_port", guest: 443, host: 8002
   #config.vm.network :public_network, bridge: 'eth0'
