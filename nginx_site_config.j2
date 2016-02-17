@@ -1,10 +1,11 @@
-# upstream {{ app_name }}_wsgi_server {
-#   # fail_timeout=0 means we always retry an upstream even if it failed
-#   # to return a good HTTP response (in case the Unicorn master nukes a
-#   # single worker for timing out).
-# 
-#   server unix:{{ app_dir }}/run/gunicorn.sock fail_timeout=0;
-# }
+upstream {{ app_name }} {
+  server localhost:2000 max_fails=0 fail_timeout=10s weight=1;
+  # send visitors back to the same server each time
+  ip_hash;
+  # enable number of keep-alive connections
+  keepalive 512;
+
+}
 
 server {
     listen      80;
@@ -31,8 +32,7 @@ server {
 
     location / {
       add_header Cache-Control no-cache;
-      try_files $uri /index.html;
-      rewrite ^/(.+[^\/])$ /$1/ permanent;
+      try_files $uri /index.html =404;
       root {{ nginx_static_dir }};
     }
 

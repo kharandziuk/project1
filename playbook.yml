@@ -20,13 +20,20 @@
     nginx_static_dir: "{{ app_dir }}/build/"
     nginx_media_dir: "{{ app_dir }}/media/"
 
-
     git_repo: "https://github.com/kharandziuk/project1"
     git_branch: "master"
+    pm2_config_path: "{{ app_dir }}/pm2.json"
 
   tasks:
     - name: set locale
       lineinfile: dest=/etc/default/locale line="LC_ALL=C"
+
+    # maybe ugly, get_url
+    - name: add node ppa
+      shell: curl -sL https://deb.nodesource.com/setup_5.x | sudo -E bash -
+
+    - name: install node and npm
+      apt: name=nodejs update_cache=yes
 
     - name: install dependencies
       apt: name={{ item }} update_cache={{ update_apt_cache }}
@@ -59,7 +66,48 @@
         dest: "{{ app_dir }}"
         accept_hostkey: yes
       #when: setup_git_repo is defined and setup_git_repo
-      tags: git
+      tags: 
+        - git
+
+    - name: install pm2
+      npm:
+        name: pm2
+        global: yes
+        state: present
+
+    - name: create pm2 init.d script
+      template:
+        src: pm2_init_script.j2
+        dest: "/etc/init.d/pm2"
+        backup: yes
+        mode: 0751
+      # notify: reload nginx
+      tags:
+        - app
+
+    - name: create pm2 init.d script
+      template:
+        src: pm2_config_template.j2
+        dest: "{{ pm2_config_path }}"
+        backup: yes
+        mode: 0751
+      # notify: reload nginx
+      tags:
+        - nginx
+
+    - name: ensure pm2 service is started
+      service: 
+        name: pm2
+        state: started
+        enabled: yes
+      tags:
+        - git
+
+    - name: install npm dependencies
+      npm:
+        path: "{{ app_dir }}"
+      tags:
+        - git
 
     - name: ensure log directory is created
       file:
@@ -73,7 +121,7 @@
         - nginx
 
 
-    - name: Create the Nginx configuration file
+    - name: create the nginx configuration file
       template:
         src: nginx_site_config.j2
         dest: "/etc/nginx/sites-available/{{ app_name }}"
@@ -99,7 +147,7 @@
       tags:
         - nginx
 
-    - name: Ensure Nginx service is started
+    - name: ensure nginx service is started
       service: name=nginx state=started enabled=yes
       tags:
         - nginx
