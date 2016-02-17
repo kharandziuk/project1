@@ -16,7 +16,7 @@
     # Nginx settings
     nginx_http_port: 80
     nginx_https_port: 443
-    app_log_dir: "{{ app_dir }}log/"
+    app_log_dir: "{{ app_dir }}logs/"
     nginx_access_log_file: "{{ app_log_dir }}nginx_access.log"
     nginx_error_log_file: "{{ app_log_dir }}nginx_error.log"
     nginx_static_dir: "{{ app_dir }}/build/"
