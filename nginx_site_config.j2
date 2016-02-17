@@ -1,10 +1,9 @@
 upstream {{ app_name }} {
-  server localhost:2000 max_fails=0 fail_timeout=10s weight=1;
+  server {{ app_host }}:{{ app_port }} max_fails=0 fail_timeout=10s weight=1;
   # send visitors back to the same server each time
   ip_hash;
   # enable number of keep-alive connections
   keepalive 512;
-
 }
 
 server {

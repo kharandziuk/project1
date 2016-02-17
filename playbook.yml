@@ -10,6 +10,8 @@
     app_user: "{{ app_name }}"
     app_group: "webapps"
     app_dir: "/usr/local/{{ app_name }}/"
+    app_host: "localhost"
+    app_port: 2000
     nginx_server_name: "{{ app_name }}"
     # Nginx settings
     nginx_http_port: 80
