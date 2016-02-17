@@ -87,7 +87,7 @@
 
     - name: create pm2 init.d script
       template:
-        src: pm2_config_template.j2
+        src: pm2_config.j2
         dest: "{{ pm2_config_path }}"
         backup: yes
         mode: 0751
@@ -151,7 +151,6 @@
       service: name=nginx state=started enabled=yes
       tags:
         - nginx
-
 
   handlers:
     - name: restart nginx
