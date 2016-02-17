@@ -1,0 +1,11 @@
+{
+  "apps" : [
+    {
+      "name"        : "server",
+      "script"      : "wrapServer.js",
+      "exec_mode"   : "cluster",
+      "error_file"  : "{{ app_log_dir }}err.log",
+      "out_file"    : "{{ app_log_dir }}out.log"
+    }
+  ]
+}
