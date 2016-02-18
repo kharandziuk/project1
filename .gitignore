@@ -1,7 +1,7 @@
 # Created by https://www.gitignore.io/api/vim,vagrant,node
 
 ### Project specific ###
-#build/
+build/
 media/
 
 ### Vim ###
