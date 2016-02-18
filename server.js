@@ -2,7 +2,9 @@ const {APP_PORT} = process.env
 
 const assert = require('assert')
 const _ = require('underscore')
+const express = require('express')
 assert(!_.isUndefined(APP_PORT))
+
 
 const app = express()
 

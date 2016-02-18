@@ -1,0 +1,15 @@
+{
+  "apps" : [
+    {
+      "name"        : "server",
+      "script"      : "wrapServer.js",
+      "ignore_watch": [".git", "media", "[\\/\\\\]\\./"],
+      "watch_options": {
+        "usePolling": true
+       },
+      "env": {
+        "APP_PORT": 3000
+      }
+    }
+  ]
+}
