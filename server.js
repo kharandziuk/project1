@@ -12,9 +12,15 @@ assert(!_.isUndefined(APP_PORT))
 const app = express()
 app.use(morgan('combined'))
 app.use(cors())
-app.get('/test', (req, res) => {
+
+var router = express.Router();
+
+router.get('/test', (req, res) => {
   res.json({text: 'it works'})
 })
+
+app.use('/api', router)
+
 
 app.listen(APP_PORT, function() {
   console.log(`listen on port ${APP_PORT}`)
