@@ -3,11 +3,13 @@ const {APP_PORT} = process.env
 const assert = require('assert')
 const _ = require('underscore')
 const express = require('express')
+const cors = require('cors')
 assert(!_.isUndefined(APP_PORT))
 
 
 const app = express()
 
+app.use(cors())
 app.get('/test', (req, res) => {
   res.json({text: 'it works'})
 })
