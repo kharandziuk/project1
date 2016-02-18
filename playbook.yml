@@ -53,7 +53,7 @@
     - name: Add the application user to the application group
       user: name={{ app_user }} group={{ app_group }} state=present
 
-    - name: Ensure that the application file permissions are set properly
+    - name: ensure that the application file permissions are set properly
       file: 
         path: "{{ app_dir }}"
         recurse: yes
